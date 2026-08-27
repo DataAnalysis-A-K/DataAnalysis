@@ -56,16 +56,24 @@ plt.show()
 
 df.set_index("timestamp", inplace=True)
 
+market_colors = mpf.make_marketcolors(
+    up="forestgreen", down="crimson", wick="inherit", volume="in", ohlc="black"
+)
+
+custom_style = mpf.make_mpf_style(
+    marketcolors=market_colors, gridstyle="--", gridcolor="lightgray", y_on_right=False
+)
+
 # Candlestick
 mpf.plot(
     data=df,
     type="candle",
-    style="yahoo",
+    style=custom_style,
     title="SPY - Sviečkový graf (Candlestick)",
     ylabel="Cena (USD)",
     ylabel_lower="Objem",
     figratio=(14, 8),
-    savefig="svieckovy_graf_spy.png",
+    savefig="outputs/svieckovy_graf_spy.png",
 )
 
 df.reset_index("timestamp", inplace=True)
