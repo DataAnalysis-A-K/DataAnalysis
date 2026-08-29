@@ -93,6 +93,16 @@ def calculate_rsi(data, column="close", period=14):
 
     return 100 - (100 / (1 + rs))
 
+def calculate_atr(data, period=14):
+    high_low = data["high"] - data["low"]
+    high_close = (data["high"] - data["close"].shift()).abs()
+    low_close = (data["low"] - data["close"].shift()).abs()
+
+    tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+    atr = tr.ewm(alpha=1/period, min_periods=period, adjust=False).mean()
+
+    return atr
+
 # Simple Moving Average (14 days)
 df["SMA 14"] = df["close"].rolling(14).mean()
 
@@ -107,6 +117,9 @@ df["volatility"] = df["close"].rolling(14).std()
 
 # Relative Strength Index
 df["RSI"] = calculate_rsi(data=df, period=14)
+
+# Average True Range (ATR 14 days)
+df["ATR 14"] = calculate_atr(data=df, period=14)
 
 # Upper Bollinger Band
 df["upper_band"] = df["SMA 14"] + 2 * df["volatility"]
@@ -209,12 +222,30 @@ axes_2[1].set_ylabel("RSI")
 axes_2[1].set_xlabel("Dátum")
 axes_2[1].legend(loc="upper left")
 axes_2[1].grid(True, linestyle="--", alpha=0.5)
-
 plt.xticks(rotation=45)
 
 plt.tight_layout()
 
 plt.savefig("outputs/volatilita_a_rsi_spy.png")
+plt.show()
+
+plt.figure(figsize=(12, 5))
+
+# ATR 14
+plt.plot(
+    df["timestamp"], df["ATR 14"], label="ATR (14)", color="darkcyan", linewidth=2
+)
+
+plt.title("SPY – Average True Range (ATR 14)", fontsize=14, fontweight="bold")
+plt.xlabel("Dátum", fontsize=12)
+plt.ylabel("ATR (USD)", fontsize=12)
+plt.legend(loc="upper left")
+plt.grid(True, linestyle="--", alpha=0.5)
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+
+plt.savefig("outputs/atr_spy.png")
 plt.show()
 
 plt.figure(figsize=(12, 6))
