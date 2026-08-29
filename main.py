@@ -393,3 +393,19 @@ plt.tight_layout()
 
 plt.savefig("outputs/korelacna_heatmapa_spy.png")
 plt.show()
+
+plt.figure(figsize=(12, 6))
+
+sns.histplot(
+    data=df, x=df["daily_return"].dropna(), kde=True
+)
+
+plt.title("Histogram distribúcie denných výnosov (Daily Returns)", fontsize=14, fontweight="bold")
+plt.xlabel("Denný výnos (%)", fontsize=12)
+plt.ylabel("Počet výskytov (Frekvencia)", fontsize=12)
+plt.grid(True, linestyle="--", alpha=0.5)
+
+plt.tight_layout()
+
+plt.savefig("outputs/histogram_vynosov_spy.png")
+plt.show()
