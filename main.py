@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import mplfinance as mpf
 
-df = pd.read_csv("data/spy_prices_data.csv")
+df = pd.read_csv("data/bitcoin_prices_data.csv")
 
 sns.set_style("darkgrid")
 
@@ -16,21 +16,21 @@ sns.lineplot(
     data=df, x="timestamp", y="close", color="green", linewidth=2
 )
 
-plt.title("Vývoj ceny SPY (Close Price)", fontsize=14, fontweight='bold')
+plt.title("Vývoj ceny BTC (Close Price)", fontsize=14, fontweight='bold')
 plt.xlabel("Dátum", fontsize=12)
 plt.ylabel("Close Price (USD)", fontsize=12)
 plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/vyvoj_cien_spy.png")
+plt.savefig("outputs/vyvoj_cien_BTC.png")
 plt.show()
 
 fig, axes = plt.subplots(
     nrows=2, ncols=1, figsize=(12, 8), sharex=True, gridspec_kw={"height_ratios": [3, 1]}
 )
 
-plt.title("SPY - Cena a Objem obchodov", fontsize=14, fontweight='bold')
+plt.title("BTC - Cena a Objem obchodov", fontsize=14, fontweight='bold')
 
 # Close Price
 axes[0].plot(
@@ -51,7 +51,7 @@ plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/vyvoj_cien_a_objemu_spy.png")
+plt.savefig("outputs/vyvoj_cien_a_objemu_BTC.png")
 plt.show()
 
 df.set_index("timestamp", inplace=True)
@@ -69,11 +69,11 @@ mpf.plot(
     data=df,
     type="candle",
     style=custom_style,
-    title="SPY - Sviečkový graf (Candlestick)",
+    title="BTC - Sviečkový graf (Candlestick)",
     ylabel="Cena (USD)",
     ylabel_lower="Objem",
     figratio=(14, 8),
-    savefig="outputs/svieckovy_graf_spy.png",
+    savefig="outputs/svieckovy_graf_BTC.png",
 )
 
 df.reset_index("timestamp", inplace=True)
@@ -154,6 +154,19 @@ df["crossed_down"] = (
 (df["MACD"] < df["Signal"])
 )
 
+# Cumulative Return (Buy & Hold)
+df["cum_buy_hold"] = (1 + df["daily_return"] / 100).cumprod()
+
+# Running Maximum
+df["running_max"] = df["cum_buy_hold"].cummax()
+
+# Drawdown
+df["drawdown"] = (df["cum_buy_hold"] - df["running_max"]) / df["running_max"] * 100
+
+# Maximum Drawdown
+max_dd = df["drawdown"].min()
+max_dd_date = df.loc[df["drawdown"].idxmin(), "timestamp"]
+
 fig_1, axes_1 = plt.subplots(
     nrows=2, ncols=1, figsize=(12, 9), sharex=True
 )
@@ -168,7 +181,7 @@ axes_1[0].plot(
     df["timestamp"], df["EMA 14"], label="EMA 14", color="darkorange", linewidth=2
 )
 
-axes_1[0].set_title("SPY – Cena a Exponenciálny kĺzavý priemer (EMA 14)", fontsize=12, fontweight='bold')
+axes_1[0].set_title("BTC – Cena a Exponenciálny kĺzavý priemer (EMA 14)", fontsize=12, fontweight='bold')
 axes_1[0].set_ylabel("Cena (USD)")
 axes_1[0].legend(loc="upper left")
 axes_1[0].grid(True, linestyle="--", alpha=0.5)
@@ -183,7 +196,7 @@ axes_1[1].plot(
     df["timestamp"], df["SMA 14"], label="SMA 14", color="darkorange", linewidth=2
 )
 
-axes_1[1].set_title("SPY – Cena a Jednoduchý kĺzavý priemer (SMA 14)", fontsize=12, fontweight='bold')
+axes_1[1].set_title("BTC – Cena a Jednoduchý kĺzavý priemer (SMA 14)", fontsize=12, fontweight='bold')
 axes_1[1].set_ylabel("Cena (USD)")
 axes_1[1].set_xlabel("Dátum")
 axes_1[1].legend(loc="upper left")
@@ -193,7 +206,7 @@ plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/ema_a_sma_14_spy.png")
+plt.savefig("outputs/ema_a_sma_14_BTC.png")
 plt.show()
 
 fig_2, axes_2 = plt.subplots(
@@ -217,7 +230,7 @@ axes_2[1].plot(
 
 axes_2[1].axhline(70, color="red", linestyle="--", alpha=0.7, label="Prekupené (70)")
 axes_2[1].axhline(30, color="green", linestyle="--", alpha=0.7, label="Prepredané (30)")
-axes_2[1].set_title("SPY – Relative Strength Index (RSI)", fontsize=14, fontweight='bold')
+axes_2[1].set_title("BTC – Relative Strength Index (RSI)", fontsize=14, fontweight='bold')
 axes_2[1].set_ylabel("RSI")
 axes_2[1].set_xlabel("Dátum")
 axes_2[1].legend(loc="upper left")
@@ -226,7 +239,7 @@ plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/volatilita_a_rsi_spy.png")
+plt.savefig("outputs/volatilita_a_rsi_BTC.png")
 plt.show()
 
 plt.figure(figsize=(12, 5))
@@ -236,7 +249,7 @@ plt.plot(
     df["timestamp"], df["ATR 14"], label="ATR (14)", color="darkcyan", linewidth=2
 )
 
-plt.title("SPY – Average True Range (ATR 14)", fontsize=14, fontweight="bold")
+plt.title("BTC – Average True Range (ATR 14)", fontsize=14, fontweight="bold")
 plt.xlabel("Dátum", fontsize=12)
 plt.ylabel("ATR (USD)", fontsize=12)
 plt.legend(loc="upper left")
@@ -245,7 +258,7 @@ plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/atr_spy.png")
+plt.savefig("outputs/atr_BTC.png")
 plt.show()
 
 plt.figure(figsize=(12, 6))
@@ -265,7 +278,7 @@ plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/denne_vynosy_spy.png")
+plt.savefig("outputs/denne_vynosy_BTC.png")
 plt.show()
 
 fig_3, ax = plt.subplots(figsize=(12, 6))
@@ -295,7 +308,7 @@ ax.fill_between(
     df["timestamp"], df["upper_band"], df["lower_band"], color="gray", alpha=0.15, label="Bollingerov tunel (95%)"
 )
 
-ax.set_title("SPY – Kompletné Bollingerove pásma v jednom grafe", fontsize=14, fontweight='bold')
+ax.set_title("BTC – Kompletné Bollingerove pásma v jednom grafe", fontsize=14, fontweight='bold')
 ax.set_xlabel("Dátum", fontsize=12)
 ax.set_ylabel("Cena (USD)", fontsize=12)
 ax.legend(loc="upper left")
@@ -303,7 +316,7 @@ ax.grid(True, linestyle="--", alpha=0.5)
 
 plt.tight_layout()
 
-plt.savefig("outputs/bollingerove_pasma_spy.png")
+plt.savefig("outputs/bollingerove_pasma_BTC.png")
 plt.show()
 
 fig_4, axes_3 = plt.subplots(
@@ -325,7 +338,7 @@ axes_3[0].plot(
     df["timestamp"], df["EMA 26"], label="EMA 26 (Pomalý)", color="darkorange", linewidth=1.5
 )
 
-axes_3[0].set_title("SPY – Cena a oba EMA", fontsize=14, fontweight="bold")
+axes_3[0].set_title("BTC – Cena a oba EMA", fontsize=14, fontweight="bold")
 axes_3[0].set_ylabel("Cena (USD)")
 axes_3[0].legend(loc="upper left")
 axes_3[0].grid(True, linestyle="--", alpha=0.5)
@@ -377,7 +390,7 @@ plt.xticks(rotation=45)
 
 plt.tight_layout()
 
-plt.savefig("outputs/macd_spy.png")
+plt.savefig("outputs/macd_BTC.png")
 plt.show()
 
 plt.figure(figsize=(10, 8))
@@ -391,7 +404,7 @@ plt.title("Korelácia medzi indikátormi", fontsize=14, fontweight="bold")
 
 plt.tight_layout()
 
-plt.savefig("outputs/korelacna_heatmapa_spy.png")
+plt.savefig("outputs/korelacna_heatmapa_BTC.png")
 plt.show()
 
 plt.figure(figsize=(12, 6))
@@ -407,5 +420,5 @@ plt.grid(True, linestyle="--", alpha=0.5)
 
 plt.tight_layout()
 
-plt.savefig("outputs/histogram_vynosov_spy.png")
+plt.savefig("outputs/histogram_vynosov_BTC.png")
 plt.show()
